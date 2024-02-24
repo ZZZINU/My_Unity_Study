@@ -21,86 +21,86 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float _speed = 10.0f;
 
-    bool _moveToDest = false;
     Vector3 _destPos;
 
     void Start()
     {
-        Managers.input.KeyAction -= OnKeyboard;
-        Managers.input.KeyAction += OnKeyboard;
         Managers.input.MouseAction -= OnMouseClicked;
         Managers.input.MouseAction += OnMouseClicked;
-
     }
 
     float wait_run_ratio = 0;
 
-    void Update()
+    public enum PlayerState
     {
-        if (_moveToDest)
-        {
-            Vector3 dir = _destPos - transform.position; 
-            if(dir.magnitude <0.0001f) 
-            { 
-                _moveToDest = false;
-            }
-            else
-            {
-                float moveDist = Mathf.Clamp(_speed * Time.deltaTime, 0, dir.magnitude);
-                transform.position += dir.normalized * moveDist;
+        Die,
+        Moving,
+        Idle,
+    }
 
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 20 * Time.deltaTime);
-                transform.LookAt(_destPos);
-            }
-        }
-
-        if (_moveToDest)
-        {
-            wait_run_ratio = Mathf.Lerp(wait_run_ratio, 1, 10.0f * Time.deltaTime);
-            Animator anim = GetComponent<Animator>();
-            anim.SetFloat("wait_run_ratio", wait_run_ratio);
-            anim.Play("WAIT_RUN");
-        }
-        else
-        {
-            wait_run_ratio = Mathf.Lerp(wait_run_ratio, 0, 10.0f * Time.deltaTime);
-            Animator anim = GetComponent<Animator>();
-            anim.SetFloat("wait_run_ratio", wait_run_ratio);
-            anim.Play("WAIT_RUN");
-        }
-
-        
+    PlayerState _state = PlayerState.Idle;
+    
+    void UpdateDie()
+    {
 
     }
 
-    void OnKeyboard()
+    void UpdateMoving()
     {
-        if (Input.GetKey(KeyCode.W))
+        Vector3 dir = _destPos - transform.position;
+        if (dir.magnitude < 0.0001f)
         {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.forward), 0.2f);
-            transform.position += Vector3.forward * Time.deltaTime * _speed;
+            _state = PlayerState.Idle;
         }
-        if (Input.GetKey(KeyCode.S))
+        else
         {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.back), 0.2f);
-            transform.position += Vector3.back * Time.deltaTime * _speed;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.left), 0.2f);
-            transform.position += Vector3.left * Time.deltaTime * _speed;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.right), 0.2f);
-            transform.position += Vector3.right * Time.deltaTime * _speed;
+            float moveDist = Mathf.Clamp(_speed * Time.deltaTime, 0, dir.magnitude);
+            transform.position += dir.normalized * moveDist;
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 20 * Time.deltaTime);
+            transform.LookAt(_destPos);
         }
 
-        _moveToDest = false;
+        // 애니메이션
+        wait_run_ratio = Mathf.Lerp(wait_run_ratio, 1, 10.0f * Time.deltaTime);
+        Animator anim = GetComponent<Animator>();
+        anim.SetFloat("wait_run_ratio", wait_run_ratio);
+        anim.Play("WAIT_RUN");
+
+    }
+
+    void UpdateIdle()
+    {
+        // 애니메이션
+        wait_run_ratio = Mathf.Lerp(wait_run_ratio, 0, 10.0f * Time.deltaTime);
+        Animator anim = GetComponent<Animator>();
+        anim.SetFloat("wait_run_ratio", wait_run_ratio);
+        anim.Play("WAIT_RUN");
+
+    }
+
+    void Update()
+    {
+
+        switch(_state)
+        {
+            case PlayerState.Die:
+                UpdateDie();
+                break;
+            case PlayerState.Moving:    
+                UpdateMoving();
+                break;
+            case PlayerState.Idle:
+                 UpdateIdle();
+                 break;
+        }
+
     }
 
     void OnMouseClicked (Define.MouseEvent evt)
     {
+        if (_state == PlayerState.Die)
+            return;
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -110,7 +110,7 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(ray, out hit, 100.0f, LayerMask.GetMask("Wall")))
         {
             _destPos = hit.point;
-            _moveToDest = true;
+            _state = PlayerState.Moving;
             // Debug.Log($"Raycast Camera @ {hit.collider.gameObject.tag}");
         }
 
