@@ -52,6 +52,19 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        if (_moveToDest)
+        {
+            Animator anim = GetComponent<Animator>();
+            anim.Play("RUN");
+        }
+        else
+        {
+            Animator anim = GetComponent<Animator>();
+            anim.Play("WAIT");
+        }
+
+        
+
     }
 
     void OnKeyboard()
@@ -82,8 +95,6 @@ public class PlayerController : MonoBehaviour
 
     void OnMouseClicked (Define.MouseEvent evt)
     {
-        if (evt != Define.MouseEvent.Click)
-            return;
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
