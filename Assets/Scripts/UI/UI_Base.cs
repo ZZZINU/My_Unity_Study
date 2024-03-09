@@ -8,6 +8,9 @@ using UnityEngine.UI;
 
 public class UI_Base : MonoBehaviour
 {
+
+    public virtual void Init() { }
+
     protected Dictionary<Type, UnityEngine.Object[]> _objects = new Dictionary<Type, UnityEngine.Object[]>();
     protected void Bind<T>(Type type) where T : UnityEngine.Object
     {
