@@ -5,6 +5,8 @@ using UnityEngine;
 public class SoundManager 
 {
     AudioSource[] _audioSources = new AudioSource[(int)Define.Sound.MaxCount];
+    Dictionary<string, AudioClip> _audioClips = new Dictionary<string, AudioClip>();
+
     // MP3 Player -> AudioSource
     // MP3 À½¿ø -> AudioClip
     // °ü°´(±Í) -> AudioListener
@@ -29,7 +31,17 @@ public class SoundManager
         }
     }
 
-    public void Play(Define.Sound type, string path, float pitch = 1.0f)
+    public void Clear()
+    {
+        foreach(AudioSource audioSource in _audioSources)
+        {
+            audioSource.clip = null;
+            audioSource.Stop();
+        }
+        _audioClips.Clear();
+    }
+
+    public void Play(string path, Define.Sound type =  Define.Sound.Effect, float pitch = 1.0f)
     {
         if (path.Contains("Sounds/") == false)
             path = $"Sounds/{path}";
@@ -42,10 +54,19 @@ public class SoundManager
                 Debug.Log($"AudioClip Missing! {path}");
                 return;
             }
+
+
+            AudioSource audioSource = _audioSources[(int)Define.Sound.Bgm];
+            if (audioSource.isPlaying)
+                audioSource.Stop();
+            audioSource.pitch = pitch; 
+            audioSource.clip = audioClip;
+            audioSource.Play();
+
         }
         else
         {
-            AudioClip audioClip = Managers.Resource.Load<AudioClip>(path);
+            AudioClip audioClip = GetOrAddAudioClip(path);
             if (audioClip == null)
             {
                 Debug.Log($"AudioClip Missing! {path}");
@@ -58,6 +79,17 @@ public class SoundManager
         }
 
 
+    }
+
+    AudioClip GetOrAddAudioClip(string path)
+    {
+        AudioClip audioClip = null;
+        if (_audioClips.TryGetValue(path, out audioClip) ==false)
+        {
+            audioClip = Managers.Resource.Load<AudioClip>(path);
+            _audioClips.Add(path, audioClip);
+        }
+        return audioClip;
     }
 
 }
