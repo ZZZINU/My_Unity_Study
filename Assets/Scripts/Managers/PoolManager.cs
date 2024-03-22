@@ -53,6 +53,11 @@ public class PoolManager
                 poolable = Create();
 
             poolable.gameObject.SetActive(true);
+
+            // DontDestroyOnLoad 해제 용도
+            if (parent == null)
+                poolable.transform.parent = Managers.Scene.CurrentScene.transform;
+
             poolable.transform.parent = parent;
             poolable.IsUsing = true;
 
@@ -67,7 +72,7 @@ public class PoolManager
         if(_root == null)
         {
             _root = new GameObject { name = "@Pool_Root"}.transform;
-            object.DontDestroyOnLoad(_root);
+            Object.DontDestroyOnLoad(_root);
 
         }
     }
