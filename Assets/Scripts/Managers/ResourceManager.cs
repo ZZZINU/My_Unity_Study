@@ -22,13 +22,15 @@ public class ResourceManager
         // 2. 혹시 풀링된 애가 있을까?
         GameObject go = Object.Instantiate(prefab, parent);
         go.name = profeb.name;
-        
+
         return go;
     }
 
     public void Destroy(GameObject go) {
         if (go == null)
             return;
+
+        // 만약에 풀링이 필요한 아이라면 -> 풀링 매니저한테 위탁
 
         Object.Destroy(go);
     }
