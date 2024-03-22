@@ -4,16 +4,18 @@ using UnityEngine;
 
 public class Managers : MonoBehaviour
 {
-    static Managers s_instance; // À¯ÀÏ¼ºÀÌ º¸ÀåµÈ´Ù
-    public static Managers Instance { get { Init(); return s_instance; } } // À¯ÀÏÇÑ ¸Å´ÏÀú¸¦ °®°í¿Â´Ù
+    static Managers s_instance; // ìœ ì¼ì„±ì´ ë³´ì¥ëœë‹¤
+    public static Managers Instance { get { Init(); return s_instance; } } // ìœ ì¼í•œ ë§¤ë‹ˆì €ë¥¼ ê°–ê³ ì˜¨ë‹¤
 
     InputManager _input = new InputManager();
+    PoolManger _pool = new PoolManger();
     ResourceManager _resource = new ResourceManager();
     SceneManagerEx _scene = new SceneManagerEx();
     SoundManager _sound =  new SoundManager();
     UIManager _ui = new UIManager();
 
     public static InputManager Input {  get {  return Instance._input; } }  
+    public static PoolManager Pool {  get {  return Instance._pool; } }  
     public static ResourceManager Resource {  get { return Instance._resource; } }
     public static SceneManagerEx Scene { get { return Instance._scene; } }  
     public static SoundManager Sound {  get { return Instance._sound; } }
